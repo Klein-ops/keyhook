@@ -19,7 +19,6 @@ typedef struct {
     int verbose;
     int mode;
     int long_press_ms;
-    int print_pid;
 } Config;
 
 void usage(char *name) {
@@ -34,7 +33,6 @@ void usage(char *name) {
     fprintf(stderr, "  -l  long press duration ms (default:3000)\n");
     fprintf(stderr, "  -e  exit after trigger\n");
     fprintf(stderr, "  -v  verbose (print debug info)\n");
-    fprintf(stderr, "  -p  print PID to stdout\n");
     fprintf(stderr, "  -h  show this help\n");
     exit(1);
 }
@@ -164,12 +162,11 @@ int main(int argc, char **argv) {
         .exit_after_trigger = 0,
         .verbose = 0,
         .mode = 0,
-        .long_press_ms = 3000,
-        .print_pid = 0
+        .long_press_ms = 3000
     };
     int opt;
     
-    while ((opt = getopt(argc, argv, "d:k:s:c:t:i:m:l:evph")) != -1) {
+    while ((opt = getopt(argc, argv, "d:k:s:c:t:i:m:l:evh")) != -1) {
         switch (opt) {
             case 'd': cfg.device = optarg; break;
             case 'k': cfg.keycode = atoi(optarg); break;
@@ -185,18 +182,12 @@ int main(int argc, char **argv) {
             case 'l': cfg.long_press_ms = atoi(optarg); break;
             case 'e': cfg.exit_after_trigger = 1; break;
             case 'v': cfg.verbose = 1; break;
-            case 'p': cfg.print_pid = 1; break;
             case 'h': usage(argv[0]);
             default: usage(argv[0]);
         }
     }
     
     if (!cfg.device || !cfg.keycode || !cfg.script) usage(argv[0]);
-    
-    if (cfg.print_pid) {
-        printf("%d\n", getpid());
-        fflush(stdout);
-    }
     
     int fd = open(cfg.device, O_RDONLY);
     if (fd < 0) { perror("open"); return 1; }
